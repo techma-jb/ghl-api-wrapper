@@ -10,7 +10,7 @@ const PORT = 3000;
 const API_URL = "https://services.leadconnectorhq.com/";
 const VALID_MODULES = [
   "contacts", // Lid
-  "forms/submissions", // Lid
+  // "forms/submissions", // Lid
   "invoices", // altId* altType* Location limit* 1000 offset* 0
   "campaigns", // lid
   "opportunities/search", // Lid
@@ -116,6 +116,26 @@ app.get("/", async (req, res) => {
       });
 
       finalResponse = response.data;
+    } else if (
+      module === "invoices" ||
+      module === "payments/orders" ||
+      module === "payments/transactions" ||
+      module === "payments/subscriptions"
+    ) {
+      const response = await axios.get(requestUrl, {
+        headers: {
+          Authorization: customHeaders["Authorization"],
+          Version: version,
+          Accept: "application/json",
+        },
+        params: {
+          altId: queryParams["locationId"],
+          altType: "location",
+          limit: 1000,
+          offset: 0,
+        },
+      });
+      finalResponse = response.data;
     } else {
       // For other modules
       const response = await axios.get(requestUrl, {
@@ -127,7 +147,7 @@ app.get("/", async (req, res) => {
         params: formQueryParams(queryParams),
       });
 
-      finalResponse = response.data[`${module}`];
+      finalResponse = response.data;
     }
 
     // Return final response
